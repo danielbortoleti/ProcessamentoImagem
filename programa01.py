@@ -1,8 +1,10 @@
 from PIL import Image 
 
-def image_convert(input_file, output_file, format):
+def image_convert(input_file, output_file, format, optimize=True, quality=75):
     image = Image.open(input_file)
     image.save(output_file, format=format)
+    image.thumbnail((75, 75))
+    image.save("thumbnaildog.jpg")
 
 def image_format(input_file):
     image = Image.open(input_file)
