@@ -13,6 +13,7 @@ def main():
             sg.Input(size=(25,1), key="-FILE-"),
             sg.FileBrowse(file_types=[("JPEG (*jpg)", "*.jpg"), ("Todos os arquivos" , "*.*")]),
             sg.Button("Carregar Imagem"),
+            sg.Button("Thumbnail"),
         ],
         [   sg.Text("Endereço URL: "),
             sg.Input(size=(25,1), key="-URL-"),
@@ -25,6 +26,7 @@ def main():
         event, value = window.read()
         if event == "Exit" or event == sg.WINDOW_CLOSED:
             break
+       
         if event == "Carregar Imagem":
             filename = value["-FILE-"]
             if os.path.exists(filename):
@@ -33,12 +35,17 @@ def main():
                 bio = io.BytesIO()
                 image.save(bio, format="PNG")
                 window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
+
         if event == "Carregar Imagem da URL":
-            url = value["-URL-"] 
-            url=Image.open(requests.get(url=url, stream=True).raw)
+            image = value["-URL-"] 
+            image=Image.open(requests.get(url=image, stream=True).raw)
             bio = io.BytesIO()
-            url.save(bio, format="PNG")  
-            window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))  
+            image.save(bio, format="PNG")  
+            window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500)) 
+            
+        if event == "Thumbnail":
+            image.thumbnail((75, 75))
+            image.save("teste.jpg")
     window.close()                
 
 if __name__ == "__main__":
