@@ -1,3 +1,4 @@
+from ast import If
 import io 
 import os
 from turtle import width
@@ -15,11 +16,13 @@ def main():
             sg.FileBrowse(file_types=[("JPEG (*jpg)", "*.jpg"), ("Todos os arquivos" , "*.*")]),
             sg.Button("Carregar Imagem"),
             sg.Button("Thumbnail"),
+            sg.Button(".JPG")
         ],
         [   sg.Text("Endereço URL: "),
             sg.Input(size=(25,1), key="-URL-"),
             sg.Button("Carregar Imagem da URL"),
-            sg.Button("Reduzir qualidade")
+            sg.Button("Reduzir qualidade"),
+            sg.Button(".PNG")
         ]
     ]
 
@@ -52,6 +55,14 @@ def main():
         if event == "Reduzir qualidade":
             image.resize((800,600))
             image.save("qualidadeRuim.jpg")
+
+        if event == ".JPG":
+           image.save("imagem.jpg")
+        
+        if event == ".PNG":
+           image.save("imagem.png")
+           
+        
 
     window.close()                
 
