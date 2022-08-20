@@ -1,5 +1,6 @@
 import io 
 import os
+from turtle import width
 import requests
 import numpy as np
 import PySimpleGUI as sg
@@ -17,7 +18,8 @@ def main():
         ],
         [   sg.Text("Endereço URL: "),
             sg.Input(size=(25,1), key="-URL-"),
-            sg.Button("Carregar Imagem da URL")
+            sg.Button("Carregar Imagem da URL"),
+            sg.Button("Reduzir qualidade")
         ]
     ]
 
@@ -46,6 +48,11 @@ def main():
         if event == "Thumbnail":
             image.thumbnail((75, 75))
             image.save("teste.jpg")
+
+        if event == "Reduzir qualidade":
+            image.resize((800,600))
+            image.save("qualidadeRuim.jpg")
+
     window.close()                
 
 if __name__ == "__main__":
