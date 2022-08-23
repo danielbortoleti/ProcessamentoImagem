@@ -10,7 +10,30 @@ from PIL  import Image
 
 sg.theme('PythonPlus')
 
+
+
 def main():
+
+    def loadUrl():
+        image = value["-URL-"] 
+        image=Image.open(requests.get(url=image, stream=True).raw)
+        bio = io.BytesIO()
+        image.save(bio, format="PNG")  
+        window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
+
+    def getThumbnail():
+        image.thumbnail((75, 75))
+        image.save("thumbnail.jpg")
+
+    def lossQuality():
+        image.save("qualidadeRuim.jpg", quality=20)
+
+    def confirmFormat():
+        if value['Combo'] == '.PNG':
+            image.save('imagemFormato.png')
+        else:
+            image.save('imagemFormato.jpg')
+
     layout =[
         [sg.Image(key="-IMAGE-", size=(500,500))],
         [
@@ -45,30 +68,16 @@ def main():
                 window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
 
         if event == "Carregar Imagem da URL":
-            image = value["-URL-"] 
-            image=Image.open(requests.get(url=image, stream=True).raw)
-            bio = io.BytesIO()
-            image.save(bio, format="PNG")  
-            window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500)) 
+             loadUrl()
             
         if event == "Thumbnail":
-            image.thumbnail((75, 75))
-            image.save("teste.jpg")
+            getThumbnail()
 
         if event == "Reduzir qualidade":
-            image.save("qualidadeRuim.jpg", quality=50)
+            lossQuality()
 
         if event == "Confirmar formato":
-            if value['Combo'] == '.PNG':
-                image.save('imagemFormato.png')
-            else:
-                image.save('imagemFormato.jpg')
-
-           
-        
-       
-           
-        
+           confirmFormat()
 
     window.close()                
 
