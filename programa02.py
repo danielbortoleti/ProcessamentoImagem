@@ -14,13 +14,6 @@ sg.theme('PythonPlus')
 
 def main():
 
-    def loadUrl():
-        image = value["-URL-"] 
-        image=Image.open(requests.get(url=image, stream=True).raw)
-        bio = io.BytesIO()
-        image.save(bio, format="PNG")  
-        window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
-
     def getThumbnail():
         image.thumbnail((75, 75))
         image.save("thumbnail.jpg")
@@ -68,7 +61,12 @@ def main():
                 window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
 
         if event == "Carregar Imagem da URL":
-             loadUrl()
+             image = value["-URL-"] 
+             image = Image.open(requests.get(url=image, stream=True).raw)
+             bio = io.BytesIO()
+             image.save(bio, format="PNG")  
+             window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
+
             
         if event == "Thumbnail":
             getThumbnail()
