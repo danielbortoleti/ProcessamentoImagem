@@ -1,11 +1,14 @@
 from ast import If
 import io 
 import os
+from pickletools import optimize
 from turtle import width
 import requests
 import numpy as np
 import PySimpleGUI as sg
 from PIL  import Image
+
+sg.theme('PythonPlus')
 
 def main():
     layout =[
@@ -16,13 +19,13 @@ def main():
             sg.FileBrowse(file_types=[("JPEG (*jpg)", "*.jpg"), ("Todos os arquivos" , "*.*")]),
             sg.Button("Carregar Imagem"),
             sg.Button("Thumbnail"),
-            sg.Button(".JPG")
+            sg.Combo(['.JPG', '.PNG'], key='Combo')
         ],
         [   sg.Text("Endereço URL: "),
             sg.Input(size=(25,1), key="-URL-"),
             sg.Button("Carregar Imagem da URL"),
             sg.Button("Reduzir qualidade"),
-            sg.Button(".PNG")
+            sg.Button("Confirmar formato")
         ]
     ]
 
@@ -53,14 +56,17 @@ def main():
             image.save("teste.jpg")
 
         if event == "Reduzir qualidade":
-            image.resize((800,600))
-            image.save("qualidadeRuim.jpg")
+            image.save("qualidadeRuim.jpg", quality=50)
 
-        if event == ".JPG":
-           image.save("imagem.jpg")
+        if event == "Confirmar formato":
+            if value['Combo'] == '.PNG':
+                image.save('imagemFormato.png')
+            else:
+                image.save('imagemFormato.jpg')
+
+           
         
-        if event == ".PNG":
-           image.save("imagem.png")
+       
            
         
 
