@@ -1,9 +1,9 @@
 from PIL import Image
 
-def muda_para_cinza(imagem_entrada, imagem_saida):
-    imagem = Image.open(imagem_entrada)
-    imagem = imagem.convert('L') #Converte para outro modelo.
-    imagem = imagem.save(imagem_saida)
+def muda_para_cinza(image_entrada, image_saida):
+    image = Image.open(image_entrada)
+    image = image.convert('L') #Converte para outro modelo.
+    image = image.save(image_saida)
 
 
 if __name__ == "__main__":
