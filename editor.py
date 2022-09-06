@@ -7,6 +7,7 @@ import numpy as np
 import PySimpleGUI as sg
 from PIL  import Image
 sg.theme("DarkGreen3")
+
 def main():
 
     def loadCombo(combo, image, combo2):
@@ -19,7 +20,7 @@ def main():
 
         if combo == "Loss quality":
             image.resize((500,500))
-            image.save("qruim.jpg")
+            image.save("lossQuality.jpg")
             show(image)
 
 
@@ -34,22 +35,26 @@ def main():
         if combo2 == "Black and White":
             image = image.convert("L")
             show(image)
-            image.save("Preto-white.jpg")
+            image.save("blackWhite.jpg")
         
-        if combo2 == "Sepea":
+        if combo2 == "Sepia":
             image = sepia_conversion(image)
+            
 
         if combo2 == "Blue":
             image = blue(image)
+            
 
         if combo2 == "Green":
             image = green(image)
+            
 
         if combo2 == "Red":
             image = red(image)
+            
 
     
-     def blue(image):
+    def blue(image):
             blue = (140, 240, 255)
             palette = calculate_palette(blue)
             image = image.convert("L")
@@ -122,32 +127,32 @@ def main():
     layout =[
         [
             sg.Combo(["Thumbnail", ".JPG", "Loss quality", ".PNG"], key="-COMBO-"),
-            sg.Combo(["Black and White", "Sepea", "Blue", "Red", "Green"], key="-COMBO2-"),
+            sg.Combo(["Black and White", "Sepia", "Blue", "Red", "Green"], key="-COMBO2-"),
             sg.Button("Save")
         ],
         [sg.Image(key="-IMAGE-", size=(500,500))],
         [   sg.Text("Image Address: "),
             sg.Input(size=(25,1), key="-FILE-"),
             sg.FileBrowse(file_types=[("JPEG (*jpg)", "*.jpg"), ("Todos os arquivos" , "*.*")]),
-            sg.Button("Load img"),
+            sg.Button("Load Img"),
         ],
          [
             sg.Text("URL: "),
             sg.Input(size=(25,1), key="-LINK-"),
-            sg.Button("Load url")
+            sg.Button("Load Url")
         ]        
     ]
 
-    window = sg.Window("Gerenciador de Imagens", layout=layout)
+    window = sg.Window("Image Manager", layout=layout)
     while True:
         event, value = window.read()
         if event == "Exit" or event == sg.WINDOW_CLOSED:
             break
        
-        if event == "Load img":
+        if event == "Load Img":
             image = loadImage()
 
-        if event == "Load url":
+        if event == "Load Url":
             image =loadUrl()
 
         combo1 = value["-COMBO-"]
