@@ -6,81 +6,33 @@ import requests
 import numpy as np
 import PySimpleGUI as sg
 from PIL  import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+
 sg.theme("DarkGreen3")
 
+file_types = [("(JPEG (.jpg)",".jpg"),
+              ("All files (.)", ".")]
+
+fields = {
+    "File name" : "File name",
+    "File size" : "File size",
+    "Model" : "Camera Model",
+    "ExifImageWidth" : "Width",
+    "ExifImageHeight" : "Height",
+    "DateTime" : "Creating Date",
+    "static_line" : "*",
+    "MaxApertureValue" : "Aperture",
+    "ExposureTime" : "Exposure",
+    "FNumber" : "F-Stop",
+    "Flash" : "Flash",
+    "FocalLength" : "Focal Length",
+    "ISOSpeedRatings" : "ISO",
+    "ShutterSpeedValue" : "Shutter Speed"
+}
+
+
 def main():
-
-    def loadCombo(combo, image, combo2):
-
-        if combo == "Thumbnail":
-            image.thumbnail((75, 75))
-            image.save("thumbnail.jpg")
-            show(image)
-
-
-        if combo == "Loss quality":
-            image.resize((500,500))
-            image.save("lossQuality.jpg")
-            show(image)
-
-
-        if combo == ".JPG":
-            image.save("img.jpg")
-            
-        
-        if combo == ".PNG":
-            image.save("img.png")
-
-
-        if combo2 == "Black and White":
-            image = image.convert("L")
-            show(image)
-            image.save("blackWhite.jpg")
-        
-        if combo2 == "Sepia":
-            image = sepia_conversion(image)
-            
-
-        if combo2 == "Blue":
-            image = blue(image)
-            
-
-        if combo2 == "Green":
-            image = green(image)
-            
-
-        if combo2 == "Red":
-            image = red(image)
-            
-
     
-    def blue(image):
-            blue = (140, 240, 255)
-            palette = calculate_palette(blue)
-            image = image.convert("L")
-            image.putpalette(palette)
-            blueFilter = image.convert("RGB")
-
-            show(blueFilter)
-
-    def green(image):
-            green = (190, 255, 140)
-            palette = calculate_palette(green)
-            image = image.convert("L")
-            image.putpalette(palette)
-            greenFilter = image.convert("RGB")
-
-            show(greenFilter)
-
-    def red(image):
-            red = (255, 140, 140)
-            palette = calculate_palette(red)
-            image = image.convert("L")
-            image.putpalette(palette)
-            redFilter = image.convert("RGB")
-
-            show(redFilter)
-
     def calculate_palette(white):
         i = 0
         palette = []
@@ -92,23 +44,7 @@ def main():
             palette.extend((new_red, new_green, new_blue))
         return palette
 
-    def loadImage():
-        filename = value["-FILE-"]
-        if os.path.exists(filename):
-            image = Image.open(filename)
-            image.thumbnail((500,500))
-            bio = io.BytesIO()
-            image.save(bio, format="PNG")
-            window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
-            return image
-       
-    def loadUrl():
-        image = value["-LINK-"] 
-        image=Image.open(requests.get(url=image, stream=True).raw) 
-        bio = io.BytesIO()
-        image.save(bio, format="PNG")  
-        window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500)) 
-        return image
+
         
     def show(image):
         image.thumbnail((500,500))
@@ -116,50 +52,107 @@ def main():
         image.save(bio, format="PNG")
         window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
 
-    def sepia_conversion(image):
-            white = (255, 240, 192)
-            palette = calculate_palette(white)
-            image = image.convert("L")
-            image.putpalette(palette)
-            sepia = image.convert("RGB")
-            show(sepia)
-         
-    layout =[
-        [
-            sg.Combo(["Thumbnail", ".JPG", "Loss quality", ".PNG"], key="-COMBO-"),
-            sg.Combo(["Black and White", "Sepia", "Blue", "Red", "Green"], key="-COMBO2-"),
-            sg.Button("Save")
-        ],
-        [sg.Image(key="-IMAGE-", size=(500,500))],
-        [   sg.Text("Image Address: "),
-            sg.Input(size=(25,1), key="-FILE-"),
-            sg.FileBrowse(file_types=[("JPEG (*jpg)", "*.jpg"), ("Todos os arquivos" , "*.*")]),
-            sg.Button("Load Img"),
-        ],
-         [
-            sg.Text("URL: "),
-            sg.Input(size=(25,1), key="-LINK-"),
-            sg.Button("Load Url")
-        ]        
-    ]
 
+    menu_def = [
+            ['File', ['Load Img', 'Load Url', 'Save',['.PNG', '.JPG', 'Thumbnail']]],
+            ['Edit', ['Resize', 'Change Quality']],
+            ['Filters', ['Black and White', 'Sepia', 'Blue', 'Green', 'Red']],
+            ['Infos',['GPS INFO']]
+            ]        
+         
+
+    layout = [
+        [sg.Menu(menu_def)],
+        [sg.Image(key="-IMAGE-", size=(500, 500))]
+    ]
     window = sg.Window("Image Manager", layout=layout)
+
     while True:
         event, value = window.read()
         if event == "Exit" or event == sg.WINDOW_CLOSED:
             break
        
         if event == "Load Img":
-            image = loadImage()
+            filename = sg.popup_get_file('Choose a image: ')
+            if os.path.exists(filename):
+                image = Image.open(filename)
+                thumbnail = image
+                thumbnail.thumbnail((500,500))
+                bio = io.BytesIO()
+                thumbnail.save(bio, format = "PNG")
+                window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
 
         if event == "Load Url":
-            image =loadUrl()
+            url = sg.popup_get_text('Insert a url: ')
+            image = Image.open(requests.get(url=url, stream=True).raw)
+            bio = io.BytesIO()
+            image.save(bio, format="png")
+            window["-IMAGE-"].update(data=bio.getvalue(), size=(500,500))
 
-        combo1 = value["-COMBO-"]
-        combo2 = value["-COMBO2-"]
-        if event == "Save":
-            loadCombo(combo1, image, combo2)
+        if event == "Thumbnail":
+            image.thumbnail((75, 75))
+            image.save("thumbnail.jpg")
 
+        if event  == ".JPG":
+            image.save("img.jpg")
+            
+ 
+        if event == ".PNG":
+            image.save("img.png")   
+
+        if event == "Resize":
+            width = int(sg.popup_get_text('Width: '))
+            height = int(sg.popup_get_text('Height: '))
+            image.resize((width, height))
+            image.save("resized.jpg")   
+
+        if event == "Change Quality":
+            quality = int(sg.popup_get_text('Quality: '))
+            image.resize((800,600))
+            image.save("quality.jpg", quality = quality)
+
+        if event == "Black and White":
+            image = image.convert("L")
+            show(image)
+            image.save("blackWhite.jpg")  
+
+        if event == "Sepia":
+            white = (255, 240, 192)
+            palette = calculate_palette(white)
+            image = image.convert("L")
+            image.putpalette(palette)
+            sepia = image.convert("RGB")
+            show(sepia)
+            image.save("sepia.png")
+
+        if event == "Blue":
+            blue = (140, 240, 255)
+            palette = calculate_palette(blue)
+            image = image.convert("L")
+            image.putpalette(palette)
+            blueFilter = image.convert("RGB")
+            show(blueFilter)
+            image.save("blue.png")
+        
+        if event == "Red":
+            red = (255, 140, 140)
+            palette = calculate_palette(red)
+            image = image.convert("L")
+            image.putpalette(palette)
+            redFilter = image.convert("RGB")
+            show(redFilter)
+            image.save("red.png")
+        
+        if event == "Green":
+            green = (190, 255, 140)
+            palette = calculate_palette(green)
+            image = image.convert("L")
+            image.putpalette(palette)
+            greenFilter = image.convert("RGB")
+            show(greenFilter)
+            image.save("green.png")
+
+        
     window.close()                
 
 if __name__ == "__main__":
