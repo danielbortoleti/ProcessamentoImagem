@@ -7,6 +7,7 @@ import numpy as np
 import PySimpleGUI as sg
 from PIL  import Image
 from PIL.ExifTags import TAGS, GPSTAGS
+from pathlib import Path
 
 sg.theme("DarkGreen3")
 
@@ -44,6 +45,29 @@ def main():
             palette.extend((new_red, new_green, new_blue))
         return palette
 
+    def get_exif_data(path):
+        exif_data = {}
+        try:
+            image = Image.open(path)
+            info = image._getexif()
+        except OSError:
+            info = {}
+
+        #Se nÃ£o encontrar o arquivo
+        if info is None:
+            info = {}
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            if decoded == "GPSInfo":
+                gps_data = {}
+                for gps_tag in value:
+                    sub_decoded = GPSTAGS.get(gps_tag, gps_tag)
+                    gps_data[sub_decoded] = value[gps_tag]
+                exif_data[decoded] = gps_data
+            else:
+                exif_data[decoded] = value
+
+        return exif_data
 
         
     def show(image):
@@ -57,7 +81,7 @@ def main():
             ['File', ['Load Img', 'Load Url', 'Save',['.PNG', '.JPG', 'Thumbnail']]],
             ['Edit', ['Resize', 'Change Quality']],
             ['Filters', ['Black and White', 'Sepia', 'Blue', 'Green', 'Red']],
-            ['Infos',['GPS INFO']]
+            ['Infos',['GPS INFO']],
             ]        
          
 
@@ -151,8 +175,30 @@ def main():
             greenFilter = image.convert("RGB")
             show(greenFilter)
             image.save("green.png")
+    
+        if event == "GPS INFO":
+                layout = [[ sg.FileBrowse("Load Image Data", file_types=file_types, key="-LOAD-", enable_events=True) ]]
+                for field in fields:
+                    layout += [[sg.Text(fields[field], size=(10,1)),
+                                sg.Text("", size=(25,1), key=field)]]
+                window = sg.Window("Image information", layout)
 
-        
+                while True:
+                    event, values = window.read()
+                    if event == "Exit" or event == sg.WIN_CLOSED:
+                        break
+                    if event == "-LOAD-":
+                        image_path = Path(values["-LOAD-"])
+                        exif_data = get_exif_data(image_path.absolute())
+                        for field in fields:
+                            if field == "File name":
+                                window[field].update(image_path.name)
+                            elif field == "File size":
+                                window[field].update(image_path.stat().st_size)
+                            else:
+                                window[field].update(exif_data.get(field, "No data"))
+
+
     window.close()                
 
 if __name__ == "__main__":
